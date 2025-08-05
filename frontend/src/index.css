@@ -1,0 +1,133 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom romantic styles */
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  body {
+    @apply font-modern antialiased bg-gradient-to-br from-romantic-blush via-romantic-pearl to-romantic-lavender min-h-screen;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white bg-opacity-25 backdrop-blur-lg border border-white border-opacity-20 shadow-glass;
+  }
+  
+  .romantic-gradient {
+    @apply bg-gradient-to-r from-romantic-pink to-romantic-rose;
+  }
+  
+  .romantic-button {
+    @apply px-6 py-3 rounded-full font-medium text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-romantic;
+  }
+  
+  .romantic-input {
+    @apply w-full px-4 py-3 rounded-xl bg-white bg-opacity-50 backdrop-blur-sm border border-white border-opacity-30 placeholder-romantic-charcoal placeholder-opacity-60 text-romantic-charcoal focus:outline-none focus:ring-2 focus:ring-romantic-pink focus:border-transparent transition-all duration-300;
+  }
+  
+  .mood-card {
+    @apply relative overflow-hidden rounded-2xl aspect-square cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-romantic;
+  }
+  
+  .service-card {
+    @apply glass-card rounded-xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-romantic;
+  }
+  
+  .credit-counter {
+    @apply inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-romantic-honey to-yellow-400 text-white font-semibold shadow-lg;
+  }
+}
+
+@layer utilities {
+  .text-romantic-gradient {
+    @apply bg-gradient-to-r from-romantic-pink to-romantic-rose bg-clip-text text-transparent;
+  }
+  
+  .heart-shadow {
+    filter: drop-shadow(0 4px 8px rgba(255, 107, 157, 0.3));
+  }
+}
+
+/* Custom animations */
+@keyframes romantic-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes heart-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sparkle-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-romantic-float {
+  animation: romantic-float 3s ease-in-out infinite;
+}
+
+.animate-heart-pulse {
+  animation: heart-pulse 2s ease-in-out infinite;
+}
+
+.animate-sparkle-rotate {
+  animation: sparkle-rotate 4s linear infinite;
+}
+
+/* Glass morphism effects */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #FF6B9D, #C44569);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #C44569, #FF6B9D);
+}
