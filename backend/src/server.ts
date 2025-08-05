@@ -6,6 +6,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import { connectDB } from './utils/database';
 import { errorHandler } from './middleware/errorHandler';
@@ -49,8 +50,13 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS configuration
-app.use(cors() as any);
+// CORS configuration - allow all origins
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -96,18 +102,32 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found 💔`
+// Serve static files from React build
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the frontend build
+  app.use(express.static(path.join(__dirname, '../../frontend/build')));
+  
+  // Handle React Router - serve index.html for all non-API routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
   });
-});
+} else {
+  // 404 handler for development
+  app.use('*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: `Route ${req.originalUrl} not found 💔`
+    });
+  });
+}
 
 // Global error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 const server = app.listen(PORT, () => {
   console.log(`
