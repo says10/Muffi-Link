@@ -67,6 +67,7 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/signin" element={<Navigate to="/auth" replace />} />
               <Route path="/auth/signup" element={<Navigate to="/auth" replace />} />
+              <Route path="/create-moodboard" element={<Navigate to="/moodboards/create" replace />} />
               <Route path="/" element={
                 <ProtectedRoute>
                   <DashboardPage />

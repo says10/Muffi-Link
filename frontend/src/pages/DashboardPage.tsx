@@ -93,7 +93,9 @@ const DashboardPage: React.FC = () => {
     // Safely handle array data with proper checks - fix moodboard data structure
     const moodboardsArray = Array.isArray(moodboardsData?.data?.data) ? moodboardsData?.data?.data : [];
     const appointmentsArray = Array.isArray(servicesData?.data?.data) ? servicesData?.data?.data : [];
-    const grievancesArray = Array.isArray(grievancesData?.data) ? grievancesData?.data : [];
+    const grievancesArray = Array.isArray(grievancesData?.data) ? grievancesData?.data : 
+                           Array.isArray(grievancesData?.data?.data) ? grievancesData?.data?.data :
+                           Array.isArray(grievancesData) ? grievancesData : [];
     
     console.log('🎨 Moodboards Debug:', {
       moodboardsData: moodboardsData,
@@ -597,8 +599,13 @@ const DashboardPage: React.FC = () => {
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
               <h3 className="text-xl font-semibold text-romantic-charcoal mb-4">Recent Grievances</h3>
               <div className="space-y-3">
-                {grievancesData?.data && Array.isArray(grievancesData.data) ?
-                  grievancesData.data.slice(0, 3).map((grievance: Grievance) => (
+                {(() => {
+                  const grievancesArray = Array.isArray(grievancesData?.data) ? grievancesData?.data : 
+                                         Array.isArray(grievancesData?.data?.data) ? grievancesData?.data?.data :
+                                         Array.isArray(grievancesData) ? grievancesData : [];
+                  
+                  return grievancesArray.length > 0 ? 
+                    grievancesArray.slice(0, 3).map((grievance: Grievance) => (
                     <div key={grievance._id} className="p-3 bg-white/10 rounded-lg">
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-romantic-charcoal">{grievance.title}</p>
@@ -618,7 +625,8 @@ const DashboardPage: React.FC = () => {
                     </div>
                   )) : (
                     <p className="text-romantic-charcoal opacity-70 text-center py-4">No recent grievances</p>
-                )}
+                  );
+                })()}
               </div>
             </div>
           </motion.div>
