@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import SignupForm from '../components/auth/SignupForm';
 import SigninForm from '../components/auth/SigninForm';
 
 const AuthPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [isSignup, setIsSignup] = useState(true);
   const navigate = useNavigate();
+
+  // Set initial tab based on URL parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'signin') {
+      setIsSignup(false);
+    } else if (tab === 'signup') {
+      setIsSignup(true);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -59,7 +70,10 @@ const AuthPage: React.FC = () => {
                   ? 'bg-white text-romantic-charcoal shadow-sm'
                   : 'text-romantic-charcoal opacity-70 hover:opacity-100'
               }`}
-              onClick={() => setIsSignup(true)}
+              onClick={() => {
+                setIsSignup(true);
+                navigate('/auth?tab=signup', { replace: true });
+              }}
             >
               Sign Up
             </button>
@@ -69,7 +83,10 @@ const AuthPage: React.FC = () => {
                   ? 'bg-white text-romantic-charcoal shadow-sm'
                   : 'text-romantic-charcoal opacity-70 hover:opacity-100'
               }`}
-              onClick={() => setIsSignup(false)}
+              onClick={() => {
+                setIsSignup(false);
+                navigate('/auth?tab=signin', { replace: true });
+              }}
             >
               Sign In
             </button>
