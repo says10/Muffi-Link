@@ -16,8 +16,7 @@ const PromisePointsHeader: React.FC = () => {
 
   // Extract balance with proper fallback - use same structure as dashboard
   const currentBalance = creditsData?.data?.data?.balance || 
-                        creditsData?.data?.balance || 
-                        creditsData?.balance || 0;
+                        creditsData?.data?.balance || 0;
   
   // Debug logging to verify the structure
   console.log('🔍 Credits API Response:', creditsData);
