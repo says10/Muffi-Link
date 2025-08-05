@@ -21,16 +21,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "@/models/*": ["src/models/*"],
-      "@/controllers/*": ["src/controllers/*"],
-      "@/routes/*": ["src/routes/*"],
-      "@/middleware/*": ["src/middleware/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
-    }
+    "baseUrl": "./"
   },
   "include": [
     "src/**/*",
