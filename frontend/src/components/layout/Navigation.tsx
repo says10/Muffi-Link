@@ -15,6 +15,7 @@ const Navigation: React.FC = () => {
     { path: '/appointments', label: 'Appointments', icon: '📅' },
     { path: '/moodboards', label: 'Moodboards', icon: '🎨' },
     { path: '/accountability', label: 'Accountability', icon: '📊' },
+    { path: '/grievances', label: 'Grievances', icon: '⚖️' },
     // { path: '/love-notes', label: 'Love Notes', icon: '💌' }, // Moved to sidebar
     // { path: '/memories', label: 'Memories', icon: '📸' }, // Moved to sidebar
   ];

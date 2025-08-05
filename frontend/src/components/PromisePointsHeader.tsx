@@ -14,8 +14,10 @@ const PromisePointsHeader: React.FC = () => {
     gcTime: 0, // Don't cache data
   });
 
-  // Extract balance with proper fallback - fix the nested data structure
-  const currentBalance = creditsData?.data?.data?.balance ?? 0;
+  // Extract balance with proper fallback - use same structure as dashboard
+  const currentBalance = creditsData?.data?.data?.balance || 
+                        creditsData?.data?.balance || 
+                        creditsData?.balance || 0;
   
   // Debug logging to verify the structure
   console.log('🔍 Credits API Response:', creditsData);

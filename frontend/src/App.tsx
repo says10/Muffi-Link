@@ -16,6 +16,7 @@ import MoodboardDashboardPage from './pages/MoodboardDashboardPage';
 import CreateMoodboardPage from './pages/CreateMoodboardPage';
 import Navigation from './components/layout/Navigation';
 import './index.css';
+import GrievancesPage from './pages/GrievancesPage';
 
 const queryClient = new QueryClient();
 
@@ -67,7 +68,11 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/signin" element={<Navigate to="/auth" replace />} />
               <Route path="/auth/signup" element={<Navigate to="/auth" replace />} />
-              <Route path="/create-moodboard" element={<Navigate to="/moodboards/create" replace />} />
+              <Route path="/create-moodboard" element={
+                <ProtectedRoute>
+                  <CreateMoodboardPage />
+                </ProtectedRoute>
+              } />
               <Route path="/" element={
                 <ProtectedRoute>
                   <DashboardPage />
@@ -101,6 +106,11 @@ function App() {
               <Route path="/accountability" element={
                 <ProtectedRoute>
                   <AccountabilityPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/grievances" element={
+                <ProtectedRoute>
+                  <GrievancesPage />
                 </ProtectedRoute>
               } />
               <Route path="/moodboards" element={
