@@ -118,13 +118,18 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
   const { serviceId, date, time, moodboardId, location, notes } = req.body;
 
   console.log('🔍 Creating appointment with serviceId:', serviceId);
+  console.log('🔍 Request body:', JSON.stringify(req.body, null, 2));
 
   // Find the service - handle both MongoDB ObjectIds and custom IDs
   let service;
   try {
     // First try to find by ObjectId (for database services)
     if (mongoose.Types.ObjectId.isValid(serviceId)) {
+      console.log('🔍 Searching for database service with ObjectId:', serviceId);
       service = await Service.findById(serviceId);
+      if (service) {
+        console.log('🔍 Found database service:', service.name);
+      }
     }
     
     // If not found and it's a custom service ID, create a temporary service object
@@ -133,7 +138,10 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
       // You'll need to pass service data in the request for custom services
       const { serviceName, serviceDescription, creditCost = 10, category = 'custom' } = req.body;
       
+      console.log('🔍 Custom service data:', { serviceName, serviceDescription, creditCost, category });
+      
       if (!serviceName) {
+        console.log('❌ Missing service name for custom service');
         return next(new AppError('Service name is required for custom services 💔', 400));
       }
       
@@ -147,20 +155,26 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
         location: location || 'Custom location',
         notes: notes || ''
       };
+      console.log('🔍 Created temporary service object:', service);
     }
   } catch (error) {
-    console.error('Error finding service:', error);
+    console.error('❌ Error finding service:', error);
     return next(new AppError('Invalid service ID 💔', 400));
   }
 
   if (!service) {
+    console.log('❌ Service not found for ID:', serviceId);
     return next(new AppError('Service not found 💔', 404));
   }
 
   console.log('🔍 Found service:', service.name, 'Cost:', service.creditCost);
 
-  // Check if user has enough credits
-  const userBalance = await Credit.getUserBalance(req.user!._id);
+  // Check if user has enough credits - use the same method as credit controller
+  console.log('🔍 User ID:', req.user!._id);
+  console.log('🔍 User ID type:', typeof req.user!._id);
+  console.log('🔍 User ID toString():', req.user!._id.toString());
+  
+  const userBalance = await Credit.getBalance(req.user!._id.toString());
   console.log('🔍 User balance:', userBalance, 'Required:', service.creditCost);
   
   if (userBalance < service.creditCost) {

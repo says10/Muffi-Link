@@ -96,6 +96,10 @@ export const appointmentsAPI = {
     moodboardId?: string;
     location?: string;
     notes?: string;
+    creditCost?: number;
+    serviceName?: string;
+    serviceDescription?: string;
+    category?: string;
   }) => api.post('/appointments', data),
   getAppointment: (id: string) => api.get(`/appointments/${id}`),
   updateAppointment: (id: string, data: {

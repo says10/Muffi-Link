@@ -73,9 +73,14 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       moodboardId: formData.moodboardId || undefined,
       location: formData.location,
       notes: formData.notes,
-      creditCost: service.creditCost
+      creditCost: service.creditCost,
+      // Add these for custom services
+      serviceName: service.name,
+      serviceDescription: service.description,
+      category: service.category || 'custom'
     };
 
+    console.log('🔍 Booking data being sent:', bookingData);
     bookingMutation.mutate(bookingData);
   };
 
