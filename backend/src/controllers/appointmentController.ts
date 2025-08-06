@@ -16,6 +16,11 @@ interface CreateAppointmentRequest extends AuthRequest {
     moodboardId?: string;
     location?: string;
     notes?: string;
+    // Custom service properties
+    serviceName?: string;
+    serviceDescription?: string;
+    creditCost?: number;
+    category?: string;
   };
 }
 
