@@ -152,8 +152,15 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
       console.log('  - category:', category);
       console.log('🔍 Full request body:', JSON.stringify(req.body, null, 2));
       
-      if (!serviceName) {
-        console.log('❌ Missing service name for custom service');
+      // Try to get service name from different possible fields as fallback
+      const finalServiceName = serviceName || (req.body as any).name || 'Custom Service';
+      const finalServiceDescription = serviceDescription || (req.body as any).description || 'Custom service description';
+      
+      console.log('🔍 Final service name:', finalServiceName);
+      console.log('🔍 Final service description:', finalServiceDescription);
+      
+      if (!finalServiceName || finalServiceName.trim() === '') {
+        console.log('❌ Missing service name for custom/mock service');
         console.log('❌ Available request body fields:', Object.keys(req.body));
         return next(new AppError('Service name is required for custom services 💔', 400));
       }
@@ -161,8 +168,8 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
       // Create a temporary service object (not saved to DB)
       service = {
         _id: serviceId,
-        name: serviceName,
-        description: serviceDescription || 'Custom service',
+        name: finalServiceName,
+        description: finalServiceDescription,
         creditCost: creditCost,
         category: category,
         location: location || 'Custom location',

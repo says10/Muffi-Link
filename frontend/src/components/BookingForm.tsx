@@ -79,15 +79,17 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       location: formData.location,
       notes: formData.notes,
       creditCost: service.creditCost,
-      // Add these for custom services - with fallbacks
-      serviceName: service.name || 'Custom Service',
-      serviceDescription: service.description || 'Custom service description',
+      // Add these for custom services - with robust fallbacks
+      serviceName: service.name || service.serviceName || 'Custom Service',
+      serviceDescription: service.description || service.serviceDescription || 'Custom service description',
       category: service.category || 'custom'
     };
 
     console.log('🔍 Booking data being sent:', bookingData);
+    console.log('🔍 Service object:', service);
     console.log('🔍 Service object keys:', Object.keys(service));
-    console.log('🔍 Service.name exists?', 'name' in service);
+    console.log('🔍 Service.name value:', service.name);
+    console.log('🔍 Service.description value:', service.description);
     console.log('🔍 Service.name value:', service.name);
     bookingMutation.mutate(bookingData);
   };
