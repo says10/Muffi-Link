@@ -521,19 +521,35 @@ const ServicesPage: React.FC = () => {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 
+                console.log('🔍 Creating custom service with data:', customServiceData);
+                
+                // Validate required fields
+                if (!customServiceData.name.trim()) {
+                  toast.error('Please enter a service name');
+                  return;
+                }
+                if (!customServiceData.description.trim()) {
+                  toast.error('Please enter a service description');
+                  return;
+                }
+                
                 // Create a custom service object
                 const customService: CustomService = {
                   _id: `custom-${Date.now()}`,
-                  name: customServiceData.name,
-                  description: customServiceData.description,
+                  name: customServiceData.name.trim(),
+                  description: customServiceData.description.trim(),
                   category: 'surprise',
-                  duration: customServiceData.duration,
-                  location: customServiceData.location,
+                  duration: customServiceData.duration || '1 hour',
+                  location: customServiceData.location || 'Custom location',
                   creditCost: customServiceData.creditCost,
                   isCustom: true,
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString()
                 };
+                
+                console.log('🔍 Created custom service object:', customService);
+                console.log('🔍 Custom service name:', customService.name);
+                console.log('🔍 Custom service description:', customService.description);
                 
                 // Set as selected service and open booking modal
                 setSelectedService(customService);

@@ -124,24 +124,37 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
   let service;
   try {
     // First try to find by ObjectId (for database services)
+    console.log('🔍 Checking if serviceId is valid ObjectId:', serviceId);
+    console.log('🔍 isValid result:', mongoose.Types.ObjectId.isValid(serviceId));
+    
     if (mongoose.Types.ObjectId.isValid(serviceId)) {
       console.log('🔍 Searching for database service with ObjectId:', serviceId);
       service = await Service.findById(serviceId);
       if (service) {
         console.log('🔍 Found database service:', service.name);
+      } else {
+        console.log('🔍 No database service found with this ObjectId');
       }
+    } else {
+      console.log('🔍 ServiceId is not a valid ObjectId, treating as custom service');
     }
     
-    // If not found and it's a custom service ID, create a temporary service object
-    if (!service && serviceId.startsWith('custom-')) {
-      console.log('🔍 Handling custom service ID:', serviceId);
+    // If not found and it's a custom service ID (or invalid ObjectId), create a temporary service object
+    if (!service) {
+      console.log('🔍 Handling custom/mock service ID:', serviceId);
       // You'll need to pass service data in the request for custom services
       const { serviceName, serviceDescription, creditCost = 10, category = 'custom' } = req.body;
       
-      console.log('🔍 Custom service data:', { serviceName, serviceDescription, creditCost, category });
+      console.log('🔍 Custom service data from request body:');
+      console.log('  - serviceName:', serviceName);
+      console.log('  - serviceDescription:', serviceDescription);
+      console.log('  - creditCost:', creditCost);
+      console.log('  - category:', category);
+      console.log('🔍 Full request body:', JSON.stringify(req.body, null, 2));
       
       if (!serviceName) {
         console.log('❌ Missing service name for custom service');
+        console.log('❌ Available request body fields:', Object.keys(req.body));
         return next(new AppError('Service name is required for custom services 💔', 400));
       }
       
