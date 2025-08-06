@@ -153,8 +153,8 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
       console.log('🔍 Full request body:', JSON.stringify(req.body, null, 2));
       
       // Try to get service name from different possible fields as fallback
-      const finalServiceName = serviceName || (req.body as any).name || 'Custom Service';
-      const finalServiceDescription = serviceDescription || (req.body as any).description || 'Custom service description';
+      const finalServiceName = serviceName || (req.body as any).name;
+      const finalServiceDescription = serviceDescription || (req.body as any).description;
       
       console.log('🔍 Final service name:', finalServiceName);
       console.log('🔍 Final service description:', finalServiceDescription);
@@ -162,7 +162,7 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
       if (!finalServiceName || finalServiceName.trim() === '') {
         console.log('❌ Missing service name for custom/mock service');
         console.log('❌ Available request body fields:', Object.keys(req.body));
-        return next(new AppError('Service name is required for custom services 💔', 400));
+        return next(new AppError('Please provide a service name for your custom service. Make sure to fill out the "Surprise Title" field. 💔', 400));
       }
       
       // Create a temporary service object (not saved to DB)
@@ -272,11 +272,23 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
 // @access  Private
 export const getAppointment = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
   console.log('🔍 DEBUG: getAppointment called');
-  console.log('🔍 DEBUG: Appointment ID:', req.params.id);
+  console.log('🔍 DEBUG: req.params:', req.params);
+  console.log('🔍 DEBUG: Appointment ID (appointmentId):', req.params.appointmentId);
+  console.log('🔍 DEBUG: Appointment ID (id):', req.params.id);
   console.log('🔍 DEBUG: Current user ID:', req.user!._id);
   console.log('🔍 DEBUG: Current user ID type:', typeof req.user!._id);
 
-  const appointment = await Appointment.findById(req.params.id)
+  // Use appointmentId parameter as defined in routes
+  const appointmentId = req.params.appointmentId || req.params.id;
+  
+  if (!appointmentId) {
+    console.log('🔍 DEBUG: No appointment ID provided');
+    return next(new AppError('Appointment ID is required 💔', 400));
+  }
+
+  console.log('🔍 DEBUG: Using appointment ID:', appointmentId);
+
+  const appointment = await Appointment.findById(appointmentId)
     .populate('userId', 'name email role')
     .populate('partnerId', 'name email role')
     .populate('moodboardId', 'moodName theme imageUrl')
@@ -325,7 +337,7 @@ export const getAppointment = asyncHandler(async (req: AuthRequest, res: Respons
 export const updateAppointment = asyncHandler(async (req: UpdateAppointmentRequest, res: Response, next: NextFunction) => {
   const { status, rating, feedback, date, time, location, notes } = req.body;
 
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findById(req.params.appointmentId);
   if (!appointment) {
     return next(new AppError('Appointment not found 💔', 404));
   }
@@ -363,7 +375,7 @@ export const updateAppointment = asyncHandler(async (req: UpdateAppointmentReque
 // @route   DELETE /api/appointments/:id
 // @access  Private
 export const deleteAppointment = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findById(req.params.appointmentId);
   if (!appointment) {
     return next(new AppError('Appointment not found 💔', 404));
   }
@@ -403,7 +415,7 @@ export const deleteAppointment = asyncHandler(async (req: AuthRequest, res: Resp
 // @route   PUT /api/appointments/:id/accept
 // @access  Private
 export const acceptAppointment = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findById(req.params.appointmentId);
 
   if (!appointment) {
     return next(new AppError('Appointment not found 💔', 404));
@@ -441,7 +453,7 @@ export const acceptAppointment = asyncHandler(async (req: AuthRequest, res: Resp
 // @route   PUT /api/appointments/:id/decline
 // @access  Private
 export const declineAppointment = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findById(req.params.appointmentId);
 
   if (!appointment) {
     return next(new AppError('Appointment not found 💔', 404));

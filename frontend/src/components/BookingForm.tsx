@@ -71,6 +71,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       return;
     }
 
+    // Validate that we have service name for custom services
+    if (service._id.startsWith('custom-') && (!service.name || service.name.trim() === '')) {
+      toast.error('Custom service is missing a name. Please create the service again with a proper title.');
+      return;
+    }
+
     const bookingData = {
       serviceId: service._id,
       date: formData.date,
@@ -79,9 +85,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       location: formData.location,
       notes: formData.notes,
       creditCost: service.creditCost,
-      // Add these for custom services - with robust fallbacks
-      serviceName: service.name || service.serviceName || 'Custom Service',
-      serviceDescription: service.description || service.serviceDescription || 'Custom service description',
+      // Add these for custom services - ensure we always have valid data
+      serviceName: service.name || `Unnamed Service ${Date.now()}`,
+      serviceDescription: service.description || 'No description provided',
       category: service.category || 'custom'
     };
 

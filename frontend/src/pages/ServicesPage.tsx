@@ -522,10 +522,15 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 
                 console.log('🔍 Creating custom service with data:', customServiceData);
+                console.log('🔍 Raw form data:');
+                console.log('  - name:', `"${customServiceData.name}"`);
+                console.log('  - description:', `"${customServiceData.description}"`);
+                console.log('  - name length:', customServiceData.name.length);
+                console.log('  - description length:', customServiceData.description.length);
                 
                 // Validate required fields
                 if (!customServiceData.name.trim()) {
-                  toast.error('Please enter a service name');
+                  toast.error('Please enter a service name in the "Surprise Title" field');
                   return;
                 }
                 if (!customServiceData.description.trim()) {
