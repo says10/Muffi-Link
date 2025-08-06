@@ -112,16 +112,54 @@ export const getAppointments = asyncHandler(async (req: AuthRequest, res: Respon
 export const createAppointment = asyncHandler(async (req: CreateAppointmentRequest, res: Response, next: NextFunction) => {
   const { serviceId, date, time, moodboardId, location, notes } = req.body;
 
-  // Find the service
-  const service = await Service.findById(serviceId);
+  console.log('🔍 Creating appointment with serviceId:', serviceId);
+
+  // Find the service - handle both MongoDB ObjectIds and custom IDs
+  let service;
+  try {
+    // First try to find by ObjectId (for database services)
+    if (mongoose.Types.ObjectId.isValid(serviceId)) {
+      service = await Service.findById(serviceId);
+    }
+    
+    // If not found and it's a custom service ID, create a temporary service object
+    if (!service && serviceId.startsWith('custom-')) {
+      console.log('🔍 Handling custom service ID:', serviceId);
+      // You'll need to pass service data in the request for custom services
+      const { serviceName, serviceDescription, creditCost = 10, category = 'custom' } = req.body;
+      
+      if (!serviceName) {
+        return next(new AppError('Service name is required for custom services 💔', 400));
+      }
+      
+      // Create a temporary service object (not saved to DB)
+      service = {
+        _id: serviceId,
+        name: serviceName,
+        description: serviceDescription || 'Custom service',
+        creditCost: creditCost,
+        category: category,
+        location: location || 'Custom location',
+        notes: notes || ''
+      };
+    }
+  } catch (error) {
+    console.error('Error finding service:', error);
+    return next(new AppError('Invalid service ID 💔', 400));
+  }
+
   if (!service) {
     return next(new AppError('Service not found 💔', 404));
   }
 
+  console.log('🔍 Found service:', service.name, 'Cost:', service.creditCost);
+
   // Check if user has enough credits
   const userBalance = await Credit.getUserBalance(req.user!._id);
+  console.log('🔍 User balance:', userBalance, 'Required:', service.creditCost);
+  
   if (userBalance < service.creditCost) {
-    return next(new AppError('Insufficient credits to book this service 💎', 400));
+    return next(new AppError(`Insufficient credits to book this service 💎. Required: ${service.creditCost}, Available: ${userBalance}`, 400));
   }
 
   // Validate moodboard if provided
@@ -157,7 +195,7 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
   const appointment = await Appointment.create({
     userId: req.user!._id,
     partnerId: req.user!.partnerId || req.user!._id,
-    serviceId: service._id,
+    serviceId: mongoose.Types.ObjectId.isValid(service._id) ? service._id : undefined,
     serviceName: service.name,
     description: service.description,
     date: new Date(date),
@@ -169,13 +207,19 @@ export const createAppointment = asyncHandler(async (req: CreateAppointmentReque
     moodboardId: moodboardId || undefined,
     creditCost: service.creditCost,
     category: service.category,
+    // Add custom service details if it's a custom service
+    customServiceId: serviceId.startsWith('custom-') ? serviceId : undefined,
   });
 
-  // Populate the appointment with related data
+  // Populate the appointment with related data - only populate valid ObjectIds
   await appointment.populate('userId', 'name email role');
   await appointment.populate('partnerId', 'name email role');
-  await appointment.populate('moodboardId', 'moodName theme imageUrl');
-  await appointment.populate('serviceId', 'name description category');
+  if (moodboardId && mongoose.Types.ObjectId.isValid(moodboardId)) {
+    await appointment.populate('moodboardId', 'moodName theme imageUrl');
+  }
+  if (service._id && mongoose.Types.ObjectId.isValid(service._id)) {
+    await appointment.populate('serviceId', 'name description category');
+  }
 
   res.status(201).json({
     success: true,

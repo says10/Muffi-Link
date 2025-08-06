@@ -21,8 +21,13 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', response.config.url, response.status);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error:', error.config?.url, error.message, error.response?.status);
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/auth';
@@ -66,7 +71,13 @@ export const servicesAPI = {
     moodboardId?: string;
     location?: string;
     notes?: string;
-  }) => api.post(`/services/${serviceId}/book`, bookingData),
+    serviceName?: string; // For custom services
+    serviceDescription?: string; // For custom services
+    creditCost?: number; // For custom services
+  }) => api.post('/appointments', {
+    serviceId,
+    ...bookingData
+  }),
   getBookings: () => api.get('/services/bookings'),
   updateService: (id: string, data: any) => api.put(`/services/${id}`, data),
   updateServiceStatus: (id: string, data: { status: string; rating?: number; feedback?: string }) => 

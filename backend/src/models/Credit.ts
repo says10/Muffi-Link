@@ -142,7 +142,9 @@ creditSchema.statics.createTransaction = async function(data: any): Promise<any>
 
 // Static method to get user balance (alias for getBalance)
 creditSchema.statics.getUserBalance = async function(userId: string): Promise<number> {
-  return await this.aggregate([
+  console.log('🔍 Getting balance for user:', userId);
+  
+  const result = await this.aggregate([
     { $match: { userId: userId } },
     {
       $group: {
@@ -172,7 +174,17 @@ creditSchema.statics.getUserBalance = async function(userId: string): Promise<nu
         balance: { $subtract: ['$totalEarned', '$totalSpent'] }
       }
     }
-  ]).then(result => result.length > 0 ? result[0].balance : 0);
+  ]);
+  
+  const balance = result.length > 0 ? result[0].balance : 0;
+  console.log('🔍 User balance calculation:', {
+    userId,
+    totalEarned: result[0]?.totalEarned || 0,
+    totalSpent: result[0]?.totalSpent || 0,
+    balance
+  });
+  
+  return balance;
 };
 
 const Credit = mongoose.model<ICredit, ICreditModel>('Credit', creditSchema);

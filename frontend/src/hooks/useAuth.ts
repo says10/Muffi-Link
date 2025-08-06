@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signinMutation = useMutation({
     mutationFn: authAPI.signin,
     onSuccess: (response: any) => {
+      console.log('✅ Signin successful:', response);
       const { token: newToken, data } = response.data;
       const { user } = data;
       localStorage.setItem('token', newToken);
@@ -62,9 +63,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast.success(`Welcome back, ${user.firstName}! 💕`);
     },
     onError: (error: any) => {
-      console.error('Signin error details:', error);
-      console.error('Error response:', error.response);
-      toast.error(error.response?.data?.message || 'Signin failed');
+      console.error('❌ Signin error details:', error);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error code:', error.code);
+      
+      if (error.code === 'ERR_NETWORK') {
+        toast.error('Network error - please check your connection');
+      } else if (error.response?.status === 401) {
+        toast.error('Invalid email or password');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error - please try again later');
+      } else {
+        toast.error(error.response?.data?.message || 'Signin failed - please try again');
+      }
     },
   });
 

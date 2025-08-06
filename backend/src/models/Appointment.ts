@@ -18,6 +18,7 @@ export interface IAppointment extends Document {
   category: 'date' | 'gift' | 'activity' | 'surprise' | 'help' | 'custom';
   rating?: number;
   feedback?: string;
+  customServiceId?: string; // For custom services that don't have MongoDB ObjectIds
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,6 +81,10 @@ const appointmentSchema = new Schema({
     type: String,
     enum: ['date', 'gift', 'activity', 'surprise', 'help', 'custom'],
     required: true,
+  },
+  customServiceId: {
+    type: String,
+    // For custom services that don't have MongoDB ObjectIds
   },
   rating: {
     type: Number,
