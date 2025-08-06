@@ -63,7 +63,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.date || !formData.time) {
@@ -77,6 +77,22 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       return;
     }
 
+    // Force ensure we have the service data for custom services
+    let finalServiceName = service.name;
+    let finalServiceDescription = service.description;
+    
+    // If this is a custom service and we're missing data, try to extract from other sources
+    if (service._id.startsWith('custom-')) {
+      finalServiceName = service.name || (service as any).serviceName || 'Custom Service';
+      finalServiceDescription = service.description || (service as any).serviceDescription || 'Custom service description';
+      
+      console.log('🔍 Processing custom service:');
+      console.log('  - service.name:', service.name);
+      console.log('  - service.description:', service.description);
+      console.log('  - finalServiceName:', finalServiceName);
+      console.log('  - finalServiceDescription:', finalServiceDescription);
+    }
+
     const bookingData = {
       serviceId: service._id,
       date: formData.date,
@@ -85,9 +101,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
       location: formData.location,
       notes: formData.notes,
       creditCost: service.creditCost,
-      // Add these for custom services - ensure we always have valid data
-      serviceName: service.name || `Unnamed Service ${Date.now()}`,
-      serviceDescription: service.description || 'No description provided',
+      // FORCE these fields to be included for all services
+      serviceName: finalServiceName || `Service ${Date.now()}`,
+      serviceDescription: finalServiceDescription || 'No description provided',
       category: service.category || 'custom'
     };
 
@@ -96,8 +112,20 @@ const BookingForm: React.FC<BookingFormProps> = ({ service, onClose, onSuccess }
     console.log('🔍 Service object keys:', Object.keys(service));
     console.log('🔍 Service.name value:', service.name);
     console.log('🔍 Service.description value:', service.description);
-    console.log('🔍 Service.name value:', service.name);
-    bookingMutation.mutate(bookingData);
+    console.log('� JSON stringified booking data:', JSON.stringify(bookingData, null, 2));
+    console.log('🚀 API URL:', process.env.REACT_APP_API_URL);
+    console.log('🔑 Token exists:', !!localStorage.getItem('token'));
+    
+    try {
+      const result = await bookingMutation.mutateAsync(bookingData);
+      console.log('✅ Booking successful:', result);
+      toast.success('Appointment booked successfully!');
+      onClose();
+    } catch (error: any) {
+      console.error('❌ Booking failed:', error);
+      console.error('❌ Error details:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || 'Failed to book appointment');
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
